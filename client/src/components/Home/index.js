@@ -6,14 +6,15 @@ import { MuiThemeProvider, createTheme } from "@material-ui/core/styles";
 import {Grid, Button, Select, MenuItem, FormControl, InputLabel, TextField, Radio, FormLabel, RadioGroup, FormControlLabel, FormHelperText} from "@material-ui/core/";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
+import { process_params } from 'express/lib/router';
 
 
 
 //Dev mode
-const serverURL = ""; //enable for dev mode
+//const serverURL = ""; //enable for dev mode
 
 //Deployment mode instructions
-//const serverURL = "http://ov-research-4.uwaterloo.ca:PORT"; //enable for deployed mode; Change PORT to the port number given to you;
+const serverURL = "http://ec2-18-216-101-119.us-east-2.compute.amazonaws.com:3042"; //enable for deployed mode; Change PORT to the port number given to you;
 //To find your port number: 
 //ssh to ov-research-4.uwaterloo.ca and run the following command: 
 //env | grep "PORT"
@@ -84,6 +85,66 @@ const Review = (props) => {
   const [finalReview, setFinalReview] = useState("")
   let errorExists = false;
 
+  const [movies, setMovies] = useState([])
+  const [userID, serUserID] = useState(1)
+
+  var params = {
+    "reviewTitleDB": reviewTitleName,
+    "reviewBodyDB": reviewName,
+    "ratingDB":ratingName,
+    "selectedMovieDB":movieName.id,
+    "userID":userID
+
+
+  }
+
+  const loadMovies = () => {
+    callApiLoadMovies()
+    .then(res => {
+    console.log("callApiFindMovies returned: ", res)
+    var parsed = JSON.parse(res.express);
+    console.log("callApiFindMovies parsed: ", parsed);
+    setMovies(parsed);
+    })
+    }
+
+  const callApiLoadMovies= async () => {
+    const url = serverURL + "/api/getMovies";
+    
+    const response = await fetch(url, {
+    method: "POST"});
+    const body = await response.json();
+    if (response.status !== 200) throw Error(body.message);
+    console.log("User settings: ", body);
+    return body;
+    }
+    
+    React.useEffect(() => {
+      loadMovies();
+    }, [] )
+
+    const subReview = () => {
+      callApiReviewSubmission()
+      .then(res => {
+        console.log(res)
+      })
+    }
+    const callApiReviewSubmission = async ()=> {
+      const url = serverURL + "/api/addReview";
+
+      
+      const response = await fetch(url, {method : "POST", body: JSON.stringify(params), headers : {
+        "Content-Type": "application/json"
+      }});
+
+      const body = await response.json()
+      if (response.status !== 200) throw Error(body.message);
+      return body;
+    }
+    
+
+
+
 
   const buttonSubmit = () => {
     setMovieNameErrorMessage("");
@@ -114,7 +175,7 @@ const Review = (props) => {
       setFinalReview(
         <div>
           <Typography variant="h5" component="h5">
-            Movie name: {movieName}
+            Movie name: {movieName.name}
           </Typography>
           <Typography variant="h5" component="h5">
             Review title: {reviewTitleName}
@@ -123,10 +184,11 @@ const Review = (props) => {
             Review body: {reviewName}
           </Typography>
           <Typography variant="h5" component="h5">
-            Rating: {ratingName}
+            Rating:{ratingName}
           </Typography>
         </div>
       )
+      subReview();
     }
   }
 
@@ -142,9 +204,9 @@ const Review = (props) => {
     alignItems="center"
   >
     <Typography variant="h3" component="h3">
-      Review Pixar Movies 
+      Review Movies 
     </Typography>
-    <MovieSelection selectHandler = {setMovie} errorMessage = {movieNameErrorMessage}></MovieSelection>
+    <MovieSelection selectHandler = {setMovie} errorMessage = {movieNameErrorMessage} moviesList = {movies}></MovieSelection>
     <ReviewTitle selectHandler = {setReviewTitle} errorMessage = {reviewTitleErrorMessage}></ReviewTitle>
     <ReviewText selectHandler = {setReview} errorMessage = {reviewErrorMessage}></ReviewText>
     <Rating selectHandler = {setRating} errorMessage = {ratingErrorMessage}></Rating>
@@ -172,11 +234,12 @@ const MovieSelection = (props) => {
       error={props.errorMessage==="" ? false : true}
       onChange={editMovie}
     >
-      <MenuItem value={"Cars"}>Cars</MenuItem>
-      <MenuItem value={"Luca"}>Luca</MenuItem>
-      <MenuItem value={"Soul"}>Soul</MenuItem>
-      <MenuItem value={"Coco"}>Coco</MenuItem>
-      <MenuItem value={"Toy Story"}>Toy Story</MenuItem>
+
+      {props.moviesList.map((item) => {
+        return(
+          <MenuItem value ={item}>{item.name}</MenuItem>
+        )
+      })}
     </Select>
     <FormHelperText error>{props.errorMessage}</FormHelperText>
   </FormControl>
@@ -344,7 +407,7 @@ class Home extends Component {
           >
             {this.state.mode === 0 ? (
               <React.Fragment>
-                I am legit the goat - Welcome to MSCI245!
+                Welcome to MSCI245!
               </React.Fragment>
             ) : (
               <React.Fragment>

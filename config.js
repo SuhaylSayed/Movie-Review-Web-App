@@ -1,8 +1,8 @@
 let config = {
-  host    : 'ov-research-4.uwaterloo.ca',
-  user    : '',
-  password: '',
-  database: ''
+  host    : 'ec2-18-216-101-119.us-east-2.compute.amazonaws.com',
+  user    : 's5sayed',
+  password: '#Pedramjan1',
+  database: 's5sayed'
 };
  
 module.exports = config;
