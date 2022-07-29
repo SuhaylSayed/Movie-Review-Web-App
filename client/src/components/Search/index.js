@@ -24,7 +24,7 @@ const theme = createTheme({
     },
   });
 
-const Landing = () => {
+const Search = () => {
 return (
 <div>
 <MuiThemeProvider theme={theme}>
@@ -41,19 +41,40 @@ return (
                     </AppBar>
                 </Box>
 <Typography variant="h3" color="inherit" noWrap align='center' >
-Welcome to Suhayl's Movie Website
+Search
 </Typography>
 
 
 <Typography variant="h5" color="inherit" noWrap align='center'>
-Discover the amazing world of movies
-</Typography>
-
-<Typography variant="h5" color="inherit" noWrap align='center'>
-Feel free to explore by selecting one of the links in the Navigation Bar
+Search by Movie Title, Actor Name and/or Director Name
 </Typography>
 
 
+<Grid
+    container
+    direction="column"
+    justifyContent="center"
+    alignItems="center"
+  >
+    <FormControl style = {{width:"50%"}}>
+      <TextField  id="movieTitle" label="Movie Title" variant="outlined" />
+    </FormControl>
+
+    <FormControl style = {{width:"50%"}}>
+      <TextField  id="movieTitle" label="Actor Name" variant="outlined" />
+    </FormControl>
+
+    <FormControl style = {{width:"50%"}}>
+      <TextField  id="movieTitle" label="Director Name" variant="outlined" />
+    </FormControl>
+    <Button variant="contained" color="primary" >
+      Submit
+    </Button>
+
+    </Grid>
+ 
+
+  
 
 
 
@@ -61,4 +82,4 @@ Feel free to explore by selecting one of the links in the Navigation Bar
 </div>
 )
 }
-export default Landing;
+export default Search;

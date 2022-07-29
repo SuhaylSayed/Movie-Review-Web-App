@@ -10,6 +10,16 @@ import { process_params } from 'express/lib/router';
 
 
 
+
+
+import { Box, AppBar, Toolbar } from '@material-ui/core';
+import history from '../Navigation/history';
+
+
+import Link from '@material-ui/core/Link';
+
+
+
 //Dev mode
 const serverURL = ""; //enable for dev mode
 
@@ -28,7 +38,7 @@ const theme = createTheme({
   palette: {
     type: 'dark',
     background: {
-      default: "#000000"
+      default: "#00008B"
     },
     primary: {
       main: "#52f1ff",
@@ -70,8 +80,7 @@ const styles = theme => ({
 });
 
 const Review = (props) => {
-  const [movieName, setMovie] = useState("")
-  const [movieNameErrorMessage, setMovieNameErrorMessage] = useState("")
+
 
   const [reviewTitleName, setReviewTitle] = useState("")
   const [reviewTitleErrorMessage, setReviewTitleErrorMessage] = useState("")
@@ -79,8 +88,7 @@ const Review = (props) => {
   const [reviewName, setReview] = useState("")
   const [reviewErrorMessage, setReviewErrorMessage] = useState("")
 
-  const [ratingName, setRating] = useState("")
-  const [ratingErrorMessage, setRatingErrorMessage] = useState("")
+
 
   const [finalReview, setFinalReview] = useState("")
   let errorExists = false;
@@ -91,12 +99,13 @@ const Review = (props) => {
   var params = {
     "reviewTitleDB": reviewTitleName,
     "reviewBodyDB": reviewName,
-    "ratingDB":ratingName,
-    "selectedMovieDB":movieName.id,
+
+
     "userID":userID
 
 
   }
+
 
   const loadMovies = () => {
     callApiLoadMovies()
@@ -124,13 +133,13 @@ const Review = (props) => {
     }, [] )
 
     const subReview = () => {
-      callApiReviewSubmission()
+      callApiFeedbackSubmission()
       .then(res => {
         console.log(res)
       })
     }
-    const callApiReviewSubmission = async ()=> {
-      const url = serverURL + "/api/addReview";
+    const callApiFeedbackSubmission = async ()=> {
+      const url = serverURL + "/api/addFeedback";
 
       
       const response = await fetch(url, {method : "POST", body: JSON.stringify(params), headers : {
@@ -141,51 +150,42 @@ const Review = (props) => {
       if (response.status !== 200) throw Error(body.message);
       return body;
     }
+
+  
     
 
 
 
 
   const buttonSubmit = () => {
-    setMovieNameErrorMessage("");
-    if (movieName === "") {
-      setMovieNameErrorMessage("Please select a movie.")
-      errorExists = true;
-    }
+
+  
     setReviewTitleErrorMessage("");
     if (reviewTitleName === "") {
-      setReviewTitleErrorMessage("Please enter a review title.")
+      setReviewTitleErrorMessage("Please enter a name.")
       errorExists = true;
     }
 
     setReviewErrorMessage("");
     if (reviewName === "") {
-      setReviewErrorMessage("Please enter a review.")
+      setReviewErrorMessage("Please enter your feednack.")
       errorExists = true;
     }
 
-    setRatingErrorMessage("");
-    if (ratingName === "") {
-      setRatingErrorMessage("Please enter a rating.")
-      errorExists = true;
-    }
+  
 
     setFinalReview("")
     if (!errorExists) {
       setFinalReview(
         <div>
+          
           <Typography variant="h5" component="h5">
-            Movie name: {movieName.name}
+            Name: {reviewTitleName}
           </Typography>
           <Typography variant="h5" component="h5">
-            Review title: {reviewTitleName}
+            Feedback: {reviewName}
           </Typography>
-          <Typography variant="h5" component="h5">
-            Review body: {reviewName}
-          </Typography>
-          <Typography variant="h5" component="h5">
-            Rating:{ratingName}
-          </Typography>
+          
         </div>
       )
       subReview();
@@ -197,55 +197,45 @@ const Review = (props) => {
 
 
   return(
+<div>
+<Box sx={{ flexGrow: 1 }}>
+    <AppBar position="static" color="secondary">
+        <Toolbar>
+            <Button style={{ fontSize: '20px' }} color="inherit" onClick={() => history.push('/')}>Home</Button>
+            <Button style={{ fontSize: '20px' }} color="inherit" onClick={() => history.push('/reviews')}>Reviews</Button>
+            <Button style={{ fontSize: '20px' }} color="inherit" onClick={() => history.push('/myPage')}>My Page</Button>
+            <Button style={{ fontSize: '20px' }} color="inherit" onClick={() => history.push('/Search')}>Search</Button>
+        </Toolbar>
+    </AppBar>
+</Box>
     <Grid
     container
     direction="column"
     justifyContent="center"
     alignItems="center"
   >
+
     <Typography variant="h3" component="h3">
-      Review Movies 
+      Website Feedback
     </Typography>
-    <MovieSelection selectHandler = {setMovie} errorMessage = {movieNameErrorMessage} moviesList = {movies}></MovieSelection>
+    <Typography variant="h6" component="h6">
+      Please provide some constructive criticism about my website
+    </Typography>
+
     <ReviewTitle selectHandler = {setReviewTitle} errorMessage = {reviewTitleErrorMessage}></ReviewTitle>
     <ReviewText selectHandler = {setReview} errorMessage = {reviewErrorMessage}></ReviewText>
-    <Rating selectHandler = {setRating} errorMessage = {ratingErrorMessage}></Rating>
+    
     <Button variant="contained" color="primary" onClick={buttonSubmit}>
       Submit
     </Button>
     {finalReview}
     </Grid>
+
+</div>
+    
   )
 }
 
-const MovieSelection = (props) => {
-
-  const editMovie = (event) => {
-    props.selectHandler(event.target.value)
-  }
-
-  return(
-
-    <FormControl variant="outlined" style = {{width: "50%"}}>
-    <InputLabel id="MovieSelectLabel">Select a movie</InputLabel>
-    <Select
-      labelId="MovieSelectLabel"
-      id="MovieSelectLabelID"
-      error={props.errorMessage==="" ? false : true}
-      onChange={editMovie}
-    >
-
-      {props.moviesList.map((item) => {
-        return(
-          <MenuItem value ={item}>{item.name}</MenuItem>
-        )
-      })}
-    </Select>
-    <FormHelperText error>{props.errorMessage}</FormHelperText>
-  </FormControl>
-
-)
-}
 
 const ReviewTitle = (props) => {
   const editTitle = (event) => {
@@ -253,7 +243,7 @@ const ReviewTitle = (props) => {
   }
   return(
     <FormControl style = {{width:"50%"}}>
-      <TextField error={props.errorMessage==="" ? false : true} onChange={editTitle} id="ReviewTitleID" label="Enter Review Title" variant="outlined" helperText={props.errorMessage}/>
+      <TextField error={props.errorMessage==="" ? false : true} onChange={editTitle} id="ReviewTitleID" label="Name" variant="outlined" helperText={props.errorMessage}/>
     </FormControl>
   )
 
@@ -271,7 +261,7 @@ const ReviewText = (props) => {
       <TextField
         error={props.errorMessage==="" ? false : true} onChange={editReview} helperText={props.errorMessage}
         id="outlined-multiline-static"
-        label="Enter Review"
+        label="Enter Feedback"
         multiline
         rows={4}
         inputProps={{ maxLength: 200 }}
@@ -286,61 +276,13 @@ const ReviewText = (props) => {
 }
 
 
-const Rating = (props) => {
-  const editRating = (event) => {
-    props.selectHandler(event.target.value)
-  }
-  return(
-    
-<FormControl component="fieldset">
-      <FormLabel component="legend">Movie Rating</FormLabel>
-      <RadioGroup row aria-label="position" name="position" defaultValue="top" error={props.errorMessage==="" ? false : true} onChange={editRating} >
-      
-        <FormControlLabel
-          value = "1"
-          control={<Radio color="primary" />}
-          label="1"
-          labelPlacement="top"
-        />
-        <FormControlLabel
-          value = "2"
-          control={<Radio color="primary" />}
-          label="2"
-          labelPlacement="top"
-        />
-       <FormControlLabel
-          value = "3"
-          control={<Radio color="primary" />}
-          label="3"
-          labelPlacement="top"
-        />
-
-        <FormControlLabel
-          value = "4"
-          control={<Radio color="primary" />}
-          label="4"
-          labelPlacement="top"
-        />
-
-        <FormControlLabel
-          value = "5"
-          control={<Radio color="primary" />}
-          label="5"
-          labelPlacement="top"
-        />
-        
-      </RadioGroup>
-      <FormHelperText error>{props.errorMessage}</FormHelperText>
-</FormControl>
-  )
-
-}
 
 
 
 
 
-class Home extends Component {
+
+class MyPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -434,8 +376,8 @@ class Home extends Component {
   }
 }
 
-Home.propTypes = {
+MyPage.propTypes = {
   classes: PropTypes.object.isRequired
 };
 
-export default withStyles(styles)(Home);
+export default withStyles(styles)(MyPage);

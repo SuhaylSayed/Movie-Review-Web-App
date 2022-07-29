@@ -10,6 +10,16 @@ import { process_params } from 'express/lib/router';
 
 
 
+
+
+import { Box, AppBar, Toolbar } from '@material-ui/core';
+import history from '../Navigation/history';
+
+
+import Link from '@material-ui/core/Link';
+
+
+
 //Dev mode
 const serverURL = ""; //enable for dev mode
 
@@ -28,7 +38,7 @@ const theme = createTheme({
   palette: {
     type: 'dark',
     background: {
-      default: "#000000"
+      default: "#00008B"
     },
     primary: {
       main: "#52f1ff",
@@ -197,12 +207,24 @@ const Review = (props) => {
 
 
   return(
+<div>
+<Box sx={{ flexGrow: 1 }}>
+    <AppBar position="static" color="secondary">
+        <Toolbar>
+            <Button style={{ fontSize: '20px' }} color="inherit" onClick={() => history.push('/')}>Home</Button>
+            <Button style={{ fontSize: '20px' }} color="inherit" onClick={() => history.push('/reviews')}>Reviews</Button>
+            <Button style={{ fontSize: '20px' }} color="inherit" onClick={() => history.push('/myPage')}>My Page</Button>
+            <Button style={{ fontSize: '20px' }} color="inherit" onClick={() => history.push('/Search')}>Search</Button>
+        </Toolbar>
+    </AppBar>
+</Box>
     <Grid
     container
     direction="column"
     justifyContent="center"
     alignItems="center"
   >
+
     <Typography variant="h3" component="h3">
       Review Movies 
     </Typography>
@@ -215,6 +237,9 @@ const Review = (props) => {
     </Button>
     {finalReview}
     </Grid>
+
+</div>
+    
   )
 }
 
